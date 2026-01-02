@@ -1,0 +1,34 @@
+{
+  "name": "qr-ticket-generator",
+  "version": "1.0.0",
+  "description": "Generate concert tickets with QR codes",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "generate-ids": "tsx src/generateIdsAndCsv.ts",
+    "generate-pdfs": "tsx src/generatePdfs.ts"
+  },
+  "keywords": [
+    "qr-code",
+    "tickets",
+    "pdf"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "qrcode": "^1.5.3",
+    "pdfkit": "^0.15.0",
+    "csv-writer": "^1.6.0",
+    "csv-parse": "^5.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/pdfkit": "^0.13.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}
+

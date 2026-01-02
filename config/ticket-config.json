@@ -1,0 +1,16 @@
+{
+  "ticketCount": 50,
+  "event": {
+    "artist": "Adele",
+    "date": "25.12.2026",
+    "startTime": "20:00",
+    "venue": "Concert Hall",
+    "category": "VIP"
+  },
+  "seatInfo": {
+    "enabled": false,
+    "template": "Row {row}, Seat {seat}"
+  },
+  "staticText": "No refunds. Valid ID required."
+}
+
