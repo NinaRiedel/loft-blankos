@@ -8,3 +8,4 @@ output/
 coverage/
 .nyc_output/
 
+static
