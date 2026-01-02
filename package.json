@@ -13,6 +13,7 @@
     "test-layout": "tsx src/testLayout.ts",
     "parse-seating": "tsx src/parseSeatingScript.ts",
     "detect-encoding": "tsx src/detectEncoding.ts",
+    "test-first-line": "tsx src/testFirstLineParsing.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"

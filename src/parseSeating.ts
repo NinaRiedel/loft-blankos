@@ -86,7 +86,7 @@ export function parseSeating(content: string): SeatInfo[] {
       continue;
     }
 
-    const description = (record[0] || '').trim();
+    const description = (record[0] || '').replace(/"/g, '').trim();
     const categoryField = (record[1] || '').trim();
     const status = (record[2] || '').trim();
 
