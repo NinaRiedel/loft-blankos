@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import { importFromCsv } from './importCsv.js';
 import { generateQRCodes } from './generateQRCodes.js';
 import { createTicketPDFs } from './createTicketPDF.js';
+import { loadConfig } from './utils.js';
 import { TicketData } from './types.js';
 
 async function main() {
@@ -21,6 +22,10 @@ async function main() {
       process.exit(1);
     }
 
+    // Load config to get includeQrCode setting
+    const configPath = join(process.cwd(), 'config', 'ticket-config.json');
+    const config = loadConfig(configPath);
+
     console.log(`Reading CSV from: ${csvPath}`);
 
     // Import tickets from CSV
@@ -35,7 +40,7 @@ async function main() {
     // Extract IDs for QR code generation
     const ids = tickets.map(ticket => ticket.id);
 
-    // Generate QR codes
+    // Generate QR codes (always generate, even if not included in PDF)
     console.log('Generating QR codes...');
     const qrCodes = await generateQRCodes(ids);
     console.log(`Generated ${qrCodes.length} QR codes`);
@@ -46,13 +51,14 @@ async function main() {
 
     // Create PDFs
     console.log('Creating PDFs...');
-    const pdfFiles = await createTicketPDFs(tickets, qrCodes, ticketsDir);
+    const pdfFiles = await createTicketPDFs(tickets, qrCodes, ticketsDir, config.includeQrCode);
     console.log(`Created ${pdfFiles.length} PDF file(s):`);
     pdfFiles.forEach(file => console.log(`  - ${file}`));
 
     console.log('\n✅ PDF generation complete!');
     console.log(`Total tickets: ${tickets.length}`);
     console.log(`Total PDFs: ${pdfFiles.length}`);
+    console.log(`QR codes in PDFs: ${config.includeQrCode ? 'Yes' : 'No'}`);
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);

@@ -20,6 +20,8 @@ export async function exportToCsv(
       { id: 'venue', title: 'Venue' },
       { id: 'category', title: 'Category' },
       { id: 'seat', title: 'Seat' },
+      { id: 'area', title: 'Area' },
+      { id: 'row', title: 'Row' },
       { id: 'staticText', title: 'StaticText' },
     ],
   });

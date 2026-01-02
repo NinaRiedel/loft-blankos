@@ -1,15 +1,12 @@
 export interface TicketConfig {
-  ticketCount: number;
+  seatingFile: string; // Path to seating file (required)
+  includeQrCode: boolean; // Whether to include QR codes in PDFs
   event: {
     artist: string;
     date: string;
     startTime: string;
     venue: string;
     category: string;
-  };
-  seatInfo: {
-    enabled: boolean;
-    template: string;
   };
   staticText: string;
 }
@@ -23,6 +20,8 @@ export interface TicketData {
   category: string;
   seat?: string;
   staticText: string;
+  area?: string;
+  row?: string;
 }
 
 export interface QRCodeData {

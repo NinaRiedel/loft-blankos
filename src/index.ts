@@ -1,11 +1,21 @@
 import { join } from 'path';
-import { mkdirSync } from 'fs';
+import { mkdirSync, existsSync } from 'fs';
 import { loadConfig, getOutputFolderName } from './utils.js';
 import { generateIds } from './generateIds.js';
 import { exportToCsv } from './exportCsv.js';
 import { generateQRCodes } from './generateQRCodes.js';
 import { createTicketPDFs } from './createTicketPDF.js';
+import { parseSeatingFile } from './parseSeating.js';
+import { createLayoutTest } from './testLayoutHelper.js';
 import { TicketData } from './types.js';
+
+function formatSeatInfo(seatInfo: { area?: string; row?: string; seat?: string }): string | undefined {
+  const parts: string[] = [];
+  if (seatInfo.area) parts.push(seatInfo.area);
+  if (seatInfo.row) parts.push(`Reihe ${seatInfo.row}`);
+  if (seatInfo.seat) parts.push(`Platz ${seatInfo.seat}`);
+  return parts.length > 0 ? parts.join(', ') : undefined;
+}
 
 async function main() {
   try {
@@ -21,22 +31,32 @@ async function main() {
     mkdirSync(ticketsDir, { recursive: true });
     console.log(`Output directory: ${outputBaseDir}`);
 
-    // Generate IDs
-    console.log(`Generating ${config.ticketCount} IDs...`);
-    const ids = generateIds(config.ticketCount);
+    // Parse seating file
+    console.log(`Parsing seating file: ${config.seatingFile}`);
+    const seatingData = parseSeatingFile(config.seatingFile);
+    console.log(`Found ${seatingData.length} seats in seating file`);
+
+    // Generate IDs for each seat
+    const ids = generateIds(seatingData.length);
     console.log(`Generated ${ids.length} IDs`);
 
-    // Prepare ticket data
-    const tickets: TicketData[] = ids.map(id => ({
-      id,
-      artist: config.event.artist,
-      date: config.event.date,
-      startTime: config.event.startTime,
-      venue: config.event.venue,
-      category: config.event.category,
-      seat: config.seatInfo.enabled ? config.seatInfo.template : undefined,
-      staticText: config.staticText,
-    }));
+    // Prepare ticket data from seating information
+    const tickets: TicketData[] = ids.map((id, index) => {
+      const seat = seatingData[index];
+      
+      return {
+        id,
+        artist: config.event.artist,
+        date: config.event.date,
+        startTime: config.event.startTime,
+        venue: config.event.venue,
+        category: seat.category || config.event.category,
+        seat: formatSeatInfo(seat),
+        staticText: config.staticText,
+        area: seat.area,
+        row: seat.row,
+      };
+    });
 
     // Export CSV
     const csvPath = join(outputBaseDir, 'ids.csv');
@@ -44,20 +64,34 @@ async function main() {
     await exportToCsv(tickets, csvPath);
     console.log(`CSV exported to: ${csvPath}`);
 
-    // Generate QR codes
+    // Generate QR codes (always generate, even if not included in PDF)
     console.log('Generating QR codes...');
     const qrCodes = await generateQRCodes(ids);
     console.log(`Generated ${qrCodes.length} QR codes`);
 
     // Create PDFs
     console.log('Creating PDFs...');
-    const pdfFiles = await createTicketPDFs(tickets, qrCodes, ticketsDir);
+    const pdfFiles = await createTicketPDFs(tickets, qrCodes, ticketsDir, config.includeQrCode);
     console.log(`Created ${pdfFiles.length} PDF file(s):`);
     pdfFiles.forEach(file => console.log(`  - ${file}`));
 
+    // Create layout test PDF if template exists
+    const templatePath = join(process.cwd(), 'template.pdf');
+    if (existsSync(templatePath) && pdfFiles.length > 0) {
+      try {
+        const layoutTestPath = await createLayoutTest(pdfFiles[0], templatePath);
+        console.log(`\n📄 Layout test PDF: ${layoutTestPath}`);
+      } catch (error) {
+        console.warn('\n⚠️  Could not create layout test PDF:', error instanceof Error ? error.message : error);
+      }
+    } else if (!existsSync(templatePath)) {
+      console.log('\nℹ️  No template.pdf found - skipping layout test');
+    }
+
     console.log('\n✅ Ticket generation complete!');
-    console.log(`Total tickets: ${config.ticketCount}`);
+    console.log(`Total tickets: ${tickets.length}`);
     console.log(`Total PDFs: ${pdfFiles.length}`);
+    console.log(`QR codes in PDFs: ${config.includeQrCode ? 'Yes' : 'No'}`);
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);

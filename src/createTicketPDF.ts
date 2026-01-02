@@ -11,7 +11,8 @@ const MAX_PAGES_PER_PDF = 20;
 export async function createTicketPDFs(
   tickets: TicketData[],
   qrCodes: QRCodeData[],
-  outputDir: string
+  outputDir: string,
+  includeQrCode: boolean = true
 ): Promise<string[]> {
   // Create output directory
   mkdirSync(outputDir, { recursive: true });
@@ -26,7 +27,7 @@ export async function createTicketPDFs(
     const batchTickets = tickets.slice(startIndex, endIndex);
 
     const pdfPath = `${outputDir}/tickets-${String(pdfIndex + 1).padStart(3, '0')}.pdf`;
-    await createSinglePDF(batchTickets, qrCodeMap, pdfPath);
+    await createSinglePDF(batchTickets, qrCodeMap, pdfPath, includeQrCode);
     pdfFiles.push(pdfPath);
   }
 
@@ -36,7 +37,8 @@ export async function createTicketPDFs(
 async function createSinglePDF(
   tickets: TicketData[],
   qrCodeMap: Map<string, Buffer>,
-  outputPath: string
+  outputPath: string,
+  includeQrCode: boolean = true
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -78,10 +80,16 @@ async function createSinglePDF(
       yPos += 18;
       doc.text(ticket.category, textMargin, yPos);
 
-      // Seat info (if enabled)
-      if (ticket.seat) {
+      // Seat info (area, row, seat)
+      if (ticket.area || ticket.row || ticket.seat) {
         yPos += 18;
-        doc.text(ticket.seat, textMargin, yPos);
+        const seatParts: string[] = [];
+        if (ticket.area) seatParts.push(ticket.area);
+        if (ticket.row) seatParts.push(`Reihe ${ticket.row}`);
+        if (ticket.seat) seatParts.push(`Platz ${ticket.seat}`);
+        if (seatParts.length > 0) {
+          doc.text(seatParts.join(', '), textMargin, yPos);
+        }
       }
 
       // Static text (below rest of text, above QR code)
@@ -92,13 +100,15 @@ async function createSinglePDF(
            width: A7_WIDTH - 2 * textMargin,
          });
 
-      // QR Code (left edge, moved up)
-      const qrBuffer = qrCodeMap.get(ticket.id);
-      if (qrBuffer) {
-        doc.image(qrBuffer, qrX, qrY, {
-          width: qrSize,
-          height: qrSize,
-        });
+      // QR Code (left edge, moved up) - only if enabled
+      if (includeQrCode) {
+        const qrBuffer = qrCodeMap.get(ticket.id);
+        if (qrBuffer) {
+          doc.image(qrBuffer, qrX, qrY, {
+            width: qrSize,
+            height: qrSize,
+          });
+        }
       }
     }
 

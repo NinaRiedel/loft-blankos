@@ -7,8 +7,18 @@ export function loadConfig(configPath: string): TicketConfig {
     const config: TicketConfig = JSON.parse(configData);
     
     // Validate required fields
-    if (!config.ticketCount || !config.event || !config.event.artist || !config.event.date) {
-      throw new Error('Invalid config: missing required fields');
+    if (!config.event || !config.event.artist || !config.event.date) {
+      throw new Error('Invalid config: missing required event fields');
+    }
+    
+    // Validate seatingFile is provided
+    if (!config.seatingFile) {
+      throw new Error('Invalid config: seatingFile is required');
+    }
+    
+    // Validate includeQrCode is defined
+    if (config.includeQrCode === undefined) {
+      throw new Error('Invalid config: includeQrCode must be defined');
     }
     
     return config;

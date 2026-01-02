@@ -3,7 +3,16 @@ import { mkdirSync } from 'fs';
 import { loadConfig, getOutputFolderName } from './utils.js';
 import { generateIds } from './generateIds.js';
 import { exportToCsv } from './exportCsv.js';
+import { parseSeatingFile } from './parseSeating.js';
 import { TicketData } from './types.js';
+
+function formatSeatInfo(seatInfo: { area?: string; row?: string; seat?: string }): string | undefined {
+  const parts: string[] = [];
+  if (seatInfo.area) parts.push(seatInfo.area);
+  if (seatInfo.row) parts.push(`Reihe ${seatInfo.row}`);
+  if (seatInfo.seat) parts.push(`Platz ${seatInfo.seat}`);
+  return parts.length > 0 ? parts.join(', ') : undefined;
+}
 
 async function main() {
   try {
@@ -18,22 +27,32 @@ async function main() {
     mkdirSync(outputBaseDir, { recursive: true });
     console.log(`Output directory: ${outputBaseDir}`);
 
-    // Generate IDs
-    console.log(`Generating ${config.ticketCount} IDs...`);
-    const ids = generateIds(config.ticketCount);
+    // Parse seating file
+    console.log(`Parsing seating file: ${config.seatingFile}`);
+    const seatingData = parseSeatingFile(config.seatingFile);
+    console.log(`Found ${seatingData.length} seats in seating file`);
+
+    // Generate IDs for each seat
+    const ids = generateIds(seatingData.length);
     console.log(`Generated ${ids.length} IDs`);
 
-    // Prepare ticket data
-    const tickets: TicketData[] = ids.map(id => ({
-      id,
-      artist: config.event.artist,
-      date: config.event.date,
-      startTime: config.event.startTime,
-      venue: config.event.venue,
-      category: config.event.category,
-      seat: config.seatInfo.enabled ? config.seatInfo.template : undefined,
-      staticText: config.staticText,
-    }));
+    // Prepare ticket data from seating information
+    const tickets: TicketData[] = ids.map((id, index) => {
+      const seat = seatingData[index];
+      
+      return {
+        id,
+        artist: config.event.artist,
+        date: config.event.date,
+        startTime: config.event.startTime,
+        venue: config.event.venue,
+        category: seat.category || config.event.category,
+        seat: formatSeatInfo(seat),
+        staticText: config.staticText,
+        area: seat.area,
+        row: seat.row,
+      };
+    });
 
     // Export CSV
     const csvPath = join(outputBaseDir, 'ids.csv');
@@ -42,7 +61,7 @@ async function main() {
     console.log(`CSV exported to: ${csvPath}`);
 
     console.log('\n✅ ID generation and CSV export complete!');
-    console.log(`Total tickets: ${config.ticketCount}`);
+    console.log(`Total tickets: ${tickets.length}`);
     console.log(`CSV file: ${csvPath}`);
   } catch (error) {
     console.error('Error:', error);
