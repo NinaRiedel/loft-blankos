@@ -18,10 +18,11 @@ export interface TicketData {
   startTime: string;
   venue: string;
   category: string;
-  seat?: string;
+  seat?: string; // Formatted seat string for CSV
   staticText: string;
   area?: string;
   row?: string;
+  seatNumber?: string; // Individual seat number
 }
 
 export interface QRCodeData {

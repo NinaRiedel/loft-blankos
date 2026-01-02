@@ -51,6 +51,7 @@ async function main() {
         staticText: config.staticText,
         area: seat.area,
         row: seat.row,
+        seatNumber: seat.seat,
       };
     });
 

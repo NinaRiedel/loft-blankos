@@ -22,6 +22,7 @@ export async function exportToCsv(
       { id: 'seat', title: 'Seat' },
       { id: 'area', title: 'Area' },
       { id: 'row', title: 'Row' },
+      { id: 'seatNumber', title: 'SeatNumber' },
       { id: 'staticText', title: 'StaticText' },
     ],
   });

@@ -57,43 +57,46 @@ async function createSinglePDF(
 
       // Hardcoded layout
       const margin = 15;
-      const textMargin = 25; // More margin for text
-      const qrSize = 80;
+      const textMargin = 20; // More margin for text
+      const qrSize = 60;
       const qrX = margin; // Left edge for QR code
       const qrY = A7_HEIGHT - qrSize - margin - 30 - 40; // Moved up by 40
 
       // Artist name (left-aligned, same font size)
       let yPos = margin + 30;
-      doc.fontSize(12)
+      doc.fontSize(10)
          .font('Helvetica')
          .text(ticket.artist, textMargin, yPos);
 
       // Date and time on same line with space
-      yPos += 18;
+      yPos += 16;
       doc.text(`${ticket.date} ${ticket.startTime}`, textMargin, yPos);
       
       // Venue
-      yPos += 18;
+      yPos += 16;
       doc.text(ticket.venue, textMargin, yPos);
       
       // Category
-      yPos += 18;
+      yPos += 16;
       doc.text(ticket.category, textMargin, yPos);
 
-      // Seat info (area, row, seat)
-      if (ticket.area || ticket.row || ticket.seat) {
-        yPos += 18;
-        const seatParts: string[] = [];
-        if (ticket.area) seatParts.push(ticket.area);
-        if (ticket.row) seatParts.push(`Reihe ${ticket.row}`);
-        if (ticket.seat) seatParts.push(`Platz ${ticket.seat}`);
-        if (seatParts.length > 0) {
-          doc.text(seatParts.join(', '), textMargin, yPos);
+      // Seat info: Area on one line, Row and Seat on same line
+      if (ticket.area) {
+        yPos += 16;
+        doc.text(ticket.area.trim(), textMargin, yPos);
+      }
+      if (ticket.row || ticket.seatNumber) {
+        yPos += 16;
+        const rowSeatParts: string[] = [];
+        if (ticket.row) rowSeatParts.push(`Reihe ${ticket.row}`);
+        if (ticket.seatNumber) rowSeatParts.push(`Platz ${ticket.seatNumber}`);
+        if (rowSeatParts.length > 0) {
+          doc.text(rowSeatParts.join(', '), textMargin, yPos);
         }
       }
 
       // Static text (below rest of text, above QR code)
-      yPos += 24; // Extra space before static text
+      yPos += 16; // Extra space before static text
       doc.fontSize(8)
          .font('Helvetica')
          .text(ticket.staticText, textMargin, yPos, {

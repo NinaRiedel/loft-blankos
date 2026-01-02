@@ -24,9 +24,10 @@ function parseDescription(description: string): { area?: string; row?: string; s
   const seat = platzMatch ? platzMatch[1] : undefined;
 
   // Extract area (everything before "Reihe")
-  if (reiheMatch) {
-    const areaPart = trimmed.substring(0, reiheMatch.index).trim();
-    area = areaPart || undefined;
+  if (reiheMatch && reiheMatch.index !== undefined) {
+    const areaPart = trimmed.substring(0, reiheMatch.index);
+    // Remove any leading/trailing spaces and normalize internal spaces
+    area = areaPart ? areaPart.replace(/\s+/g, ' ').trim() : undefined;
   }
 
   return { area, row, seat };

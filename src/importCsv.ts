@@ -21,6 +21,7 @@ export function importFromCsv(csvPath: string): TicketData[] {
     seat: record.Seat || record.seat || undefined,
     area: record.Area || record.area || undefined,
     row: record.Row || record.row || undefined,
+    seatNumber: record.SeatNumber || record.seatNumber || undefined,
     staticText: record.StaticText || record.staticText || '',
   }));
 }
