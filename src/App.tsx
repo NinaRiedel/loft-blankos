@@ -132,7 +132,7 @@ function App() {
           disabled={isGenerating || !seatingData || seatingData.length === 0}
           className="generate-btn"
         >
-          {isGenerating ? 'Generating...' : 'Generate Tickets'}
+          {isGenerating ? 'Generieren...' : 'Tickets generieren'}
         </button>
         {error && <div className="error">{error}</div>}
       </div>

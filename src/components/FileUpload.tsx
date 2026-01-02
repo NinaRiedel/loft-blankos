@@ -57,7 +57,7 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
 
@@ -67,7 +67,7 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -86,7 +86,8 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
   return (
     <div className="upload-section">
       <h2>Optionsliste als Text-Export</h2>
-      <div
+      <label
+        htmlFor="file-upload"
         className={`upload-area ${isDragging ? 'dragging' : ''}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -99,14 +100,12 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
           onChange={handleFileInput}
           style={{ display: 'none' }}
         />
-        <label htmlFor="file-upload" className="upload-label">
-          {fileName ? (
-            <span>✓ {fileName}</span>
-          ) : (
-            <span>Datei hochladen oder per Drag & Drop (.txt)</span>
-          )}
-        </label>
-      </div>
+        {fileName ? (
+          <span>✓ {fileName}</span>
+        ) : (
+          <span>Datei hochladen oder per Drag & Drop (.txt)</span>
+        )}
+      </label>
       {error && <div className="error">{error}</div>}
     </div>
   );

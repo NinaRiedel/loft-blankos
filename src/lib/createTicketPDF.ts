@@ -174,7 +174,7 @@ async function createSinglePDF(
       }
     }
 
-    // QR Code - positioned below seating info
+    // QR Code - positioned right after the text content
     if (includeQrCode) {
       const qrDataUrl = qrCodeMap.get(ticket.id);
       if (qrDataUrl) {
@@ -195,19 +195,17 @@ async function createSinglePDF(
             width: qrSize,
             height: qrSize,
           });
-          
-          yPos = qrY; // Update yPos to bottom of QR
         } catch (error) {
           console.error(`Failed to embed QR code for ticket ${ticket.id}:`, error);
         }
       }
     }
 
-    // Static text (below QR code, italic)
-    yPos -= 10; // Gap before static text
+    // Static text - fixed position at bottom (does not move with QR code)
+    const staticTextY = margin + 60;
     page.drawText(ticket.staticText, {
       x: textMargin,
-      y: yPos,
+      y: staticTextY,
       size: 8,
       font: helveticaObliqueFont,
       color: rgb(0, 0, 0),

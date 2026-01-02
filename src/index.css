@@ -92,27 +92,24 @@ h3 {
 }
 
 .upload-area {
+  display: block;
   border: 2px dashed #ccc;
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
+  color: #666;
+}
+
+.upload-area:hover {
+  border-color: #999;
+  background: #fafafa;
 }
 
 .upload-area.dragging {
   border-color: #4a90e2;
   background: #f0f7ff;
-}
-
-.upload-label {
-  cursor: pointer;
-  display: block;
-  color: #666;
-}
-
-.upload-label span {
-  display: inline-block;
 }
 
 .preview-section p {
