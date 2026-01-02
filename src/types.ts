@@ -30,3 +30,10 @@ export interface QRCodeData {
   buffer: Buffer;
 }
 
+export interface SeatInfo {
+  area?: string;
+  row?: string;
+  seat?: string;
+  category: string;
+  status: string;
+}

@@ -88,6 +88,23 @@ Edit `config/ticket-config.json` to customize:
 - Seat information template (if enabled)
 - Static text displayed on tickets
 
+## Testing
+
+Run tests with Vitest:
+```bash
+npm test
+```
+
+Run tests once (no watch mode):
+```bash
+npm run test:run
+```
+
+Run tests with coverage:
+```bash
+npm run test:coverage
+```
+
 ## Requirements
 
 - Node.js 14.17+ (for `crypto.randomUUID()`)
