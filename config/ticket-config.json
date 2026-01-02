@@ -2,10 +2,10 @@
   "seatingFile": "ohne_export.txt",
   "includeQrCode": true,
   "event": {
-    "artist": "Adele",
+    "artist": "Thorsten Nagelschmidt & Lambert & Furzknochen & Max Hohnholz & Jonas Richter",
     "date": "25.12.2026",
     "startTime": "20:00",
-    "venue": "Concert Hall",
+    "venue": "Max-Schmeling-Halle",
     "category": "VIP"
   },
   "staticText": "Der Weiterverkauf dieses Tickets ist untersagt."

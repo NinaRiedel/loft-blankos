@@ -62,20 +62,23 @@ async function createSinglePDF(
       const qrX = margin; // Left edge for QR code
       const qrY = A7_HEIGHT - qrSize - margin - 30 - 40; // Moved up by 40
 
-      // Artist name (left-aligned, bold, larger)
+      // Artist name (left-aligned, bold, dynamic size based on length)
       let yPos = margin + 35; // More margin above text (moved down)
-      doc.fontSize(12)
+      const artistFontSize = ticket.artist.length > 21 ? 10 : 12;
+      doc.fontSize(artistFontSize)
          .font('Helvetica-Bold')
-         .text(ticket.artist, textMargin, yPos);
+         .text(ticket.artist, textMargin, yPos, {
+           width: A7_WIDTH * 2, // Very large width to prevent line breaking
+         });
 
       // Date and time on same line with space
       yPos += 16;
-      doc.font('Helvetica') // Reset to regular font
-         .text(`${ticket.date} ${ticket.startTime}`, textMargin, yPos);
+      doc.fontSize(10).font('Helvetica') // Reset to regular font
+         .text(`${ticket.date}     ${ticket.venue}`, textMargin, yPos);
       
       // Venue
       yPos += 16;
-      doc.text(ticket.venue, textMargin, yPos);
+      doc.text(`${ticket.startTime} Uhr`, textMargin, yPos);
       
       // Category
       yPos += 16;
