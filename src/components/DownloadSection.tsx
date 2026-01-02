@@ -31,10 +31,36 @@ export function DownloadSection({ pdfs, tickets, layoutTestPdf }: DownloadSectio
     downloadBlob(blob, 'layout-test.pdf');
   };
 
+  const handleDownloadAll = async () => {
+    // Download layout test first if available
+    if (layoutTestPdf) {
+      const blob = new Blob([layoutTestPdf], { type: 'application/pdf' });
+      downloadBlob(blob, 'layout-test.pdf');
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    // Download all ticket PDFs
+    for (let i = 0; i < pdfs.length; i++) {
+      const blob = new Blob([pdfs[i]], { type: 'application/pdf' });
+      downloadBlob(blob, `tickets-${String(i + 1).padStart(3, '0')}.pdf`);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    // Download CSV last
+    if (tickets) {
+      const csvContent = exportToCsv(tickets);
+      downloadText(csvContent, 'ids.csv');
+    }
+  };
+
   return (
     <div className="download-section">
       <h2>Downloads</h2>
       <div className="download-buttons">
+        <button onClick={handleDownloadAll} className="download-btn download-all-btn">
+          Alle herunterladen
+        </button>
+
         {layoutTestPdf && (
           <div className="layout-test-download">
             <h3>Layout Test</h3>
