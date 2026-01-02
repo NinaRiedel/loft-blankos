@@ -11,6 +11,7 @@
     "generate-pdfs": "tsx src/generatePdfs.ts",
     "test-layout": "tsx src/testLayout.ts",
     "parse-seating": "tsx src/parseSeatingScript.ts",
+    "detect-encoding": "tsx src/detectEncoding.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
