@@ -3,9 +3,10 @@ import { TicketConfig } from '../types.js';
 interface TicketConfigFormProps {
   config: Omit<TicketConfig, 'seatingFile'>;
   onChange: (config: Omit<TicketConfig, 'seatingFile'>) => void;
+  missingFields?: string[];
 }
 
-export function TicketConfigForm({ config, onChange }: TicketConfigFormProps) {
+export function TicketConfigForm({ config, onChange, missingFields = [] }: TicketConfigFormProps) {
   const updateEvent = (field: keyof TicketConfig['event'], value: string) => {
     onChange({
       ...config,
@@ -23,9 +24,11 @@ export function TicketConfigForm({ config, onChange }: TicketConfigFormProps) {
     });
   };
 
+  const isMissing = (field: string) => missingFields.includes(field);
+
   return (
     <div className="form-section">
-      <h2>Event Configuration</h2>
+      <h2>Veranstaltungsdaten</h2>
       <div className="form-grid">
         <div className="form-group">
           <label htmlFor="artist">Artist</label>
@@ -34,31 +37,29 @@ export function TicketConfigForm({ config, onChange }: TicketConfigFormProps) {
             type="text"
             value={config.event.artist}
             onChange={(e) => updateEvent('artist', e.target.value)}
-            required
+            className={isMissing('artist') ? 'missing' : ''}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="date">Date</label>
+          <label htmlFor="date">Datum</label>
           <input
             id="date"
             type="text"
             value={config.event.date}
             onChange={(e) => updateEvent('date', e.target.value)}
-            placeholder="25.12.2026"
-            required
+            className={isMissing('date') ? 'missing' : ''}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="startTime">Start Time</label>
+          <label htmlFor="startTime">Startzeit</label>
           <input
             id="startTime"
             type="text"
             value={config.event.startTime}
             onChange={(e) => updateEvent('startTime', e.target.value)}
-            placeholder="20:00"
-            required
+            className={isMissing('startTime') ? 'missing' : ''}
           />
         </div>
 
@@ -69,29 +70,18 @@ export function TicketConfigForm({ config, onChange }: TicketConfigFormProps) {
             type="text"
             value={config.event.venue}
             onChange={(e) => updateEvent('venue', e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <input
-            id="category"
-            type="text"
-            value={config.event.category}
-            onChange={(e) => updateEvent('category', e.target.value)}
-            required
+            className={isMissing('venue') ? 'missing' : ''}
           />
         </div>
 
         <div className="form-group full-width">
-          <label htmlFor="staticText">Static Text</label>
+          <label htmlFor="staticText">Statischer Text</label>
           <textarea
             id="staticText"
             value={config.staticText}
             onChange={(e) => updateConfig('staticText', e.target.value)}
-            rows={3}
-            required
+            rows={2}
+            className={isMissing('staticText') ? 'missing' : ''}
           />
         </div>
 
@@ -102,7 +92,7 @@ export function TicketConfigForm({ config, onChange }: TicketConfigFormProps) {
               checked={config.includeQrCode}
               onChange={(e) => updateConfig('includeQrCode', e.target.checked)}
             />
-            Include QR Code in PDFs
+            QR-Code auf Tickets drucken (scannbar)?
           </label>
         </div>
       </div>

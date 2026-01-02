@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TicketConfig, TicketData, SeatInfo } from './types.js';
 import { TicketConfigForm } from './components/TicketConfigForm.js';
 import { FileUpload } from './components/FileUpload.js';
@@ -26,23 +26,49 @@ function App() {
       venue: '',
       category: '',
     },
-    staticText: '',
+    staticText: 'Der Weiterverkauf dieses Tickets ist untersagt.',
   });
 
   const [seatingData, setSeatingData] = useState<SeatInfo[] | null>(null);
   const [tickets, setTickets] = useState<TicketData[] | null>(null);
   const [pdfs, setPdfs] = useState<Uint8Array[] | null>(null);
+  const [layoutTestPdf, setLayoutTestPdf] = useState<Uint8Array | null>(null);
+  const [templatePdf, setTemplatePdf] = useState<Uint8Array | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+
+  // Load template.pdf on mount
+  useEffect(() => {
+    fetch('/template.pdf')
+      .then(res => {
+        if (res.ok) return res.arrayBuffer();
+        throw new Error('Template not found');
+      })
+      .then(buffer => setTemplatePdf(new Uint8Array(buffer)))
+      .catch(() => {
+        console.log('template.pdf not found, layout test will be disabled');
+      });
+  }, []);
 
   const handleGenerate = async () => {
+    // Check for missing fields
+    const missing: string[] = [];
+    if (!config.event.artist) missing.push('artist');
+    if (!config.event.date) missing.push('date');
+    if (!config.event.startTime) missing.push('startTime');
+    if (!config.event.venue) missing.push('venue');
+    if (!config.staticText) missing.push('staticText');
+    
+    setMissingFields(missing);
+
     if (!seatingData || seatingData.length === 0) {
       setError('Please upload a seating file first');
       return;
     }
 
-    if (!config.event.artist || !config.event.date || !config.event.startTime || !config.event.venue || !config.event.category || !config.staticText) {
-      setError('Please fill in all required fields');
+    if (missing.length > 0) {
+      setError('Please fill in all highlighted fields');
       return;
     }
 
@@ -76,9 +102,10 @@ function App() {
       // Generate QR codes
       const qrCodes = await generateQRCodes(ids);
 
-      // Generate PDFs
-      const pdfBytes = await createTicketPDFs(ticketData, qrCodes, config.includeQrCode);
-      setPdfs(pdfBytes);
+      // Generate PDFs (with optional layout test)
+      const result = await createTicketPDFs(ticketData, qrCodes, config.includeQrCode, templatePdf);
+      setPdfs(result.ticketPdfs);
+      setLayoutTestPdf(result.layoutTestPdf);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate tickets');
     } finally {
@@ -88,9 +115,12 @@ function App() {
 
   return (
     <div className="app">
-      <h1>QR Ticket Generator</h1>
+      <h1>Loft Blankos</h1>
 
-      <TicketConfigForm config={config} onChange={setConfig} />
+      <TicketConfigForm config={config} onChange={(newConfig) => {
+        setConfig(newConfig);
+        setMissingFields([]); // Clear validation on change
+      }} missingFields={missingFields} />
 
       <FileUpload onSeatingDataParsed={setSeatingData} />
 
@@ -107,7 +137,7 @@ function App() {
         {error && <div className="error">{error}</div>}
       </div>
 
-      {pdfs && <DownloadSection pdfs={pdfs} tickets={tickets} />}
+      {pdfs && <DownloadSection pdfs={pdfs} tickets={tickets} layoutTestPdf={layoutTestPdf} />}
     </div>
   );
 }

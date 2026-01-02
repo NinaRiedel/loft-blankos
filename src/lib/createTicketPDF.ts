@@ -11,13 +11,19 @@ export interface QRCodeData {
   dataUrl: string;
 }
 
+export interface GeneratedPDFs {
+  ticketPdfs: Uint8Array[];
+  layoutTestPdf: Uint8Array | null;
+}
+
 export async function createTicketPDFs(
   tickets: TicketData[],
   qrCodes: QRCodeData[],
-  includeQrCode: boolean = true
-): Promise<Uint8Array[]> {
+  includeQrCode: boolean = true,
+  templatePdfBytes: Uint8Array | null = null
+): Promise<GeneratedPDFs> {
   const qrCodeMap = new Map(qrCodes.map(qr => [qr.id, qr.dataUrl]));
-  const pdfs: Uint8Array[] = [];
+  const ticketPdfs: Uint8Array[] = [];
   const totalPdfs = Math.ceil(tickets.length / MAX_PAGES_PER_PDF);
 
   for (let pdfIndex = 0; pdfIndex < totalPdfs; pdfIndex++) {
@@ -26,10 +32,54 @@ export async function createTicketPDFs(
     const batchTickets = tickets.slice(startIndex, endIndex);
 
     const pdfBytes = await createSinglePDF(batchTickets, qrCodeMap, includeQrCode);
-    pdfs.push(pdfBytes);
+    ticketPdfs.push(pdfBytes);
   }
 
-  return pdfs;
+  // Generate layout test PDF if template is provided
+  let layoutTestPdf: Uint8Array | null = null;
+  if (templatePdfBytes && ticketPdfs.length > 0) {
+    layoutTestPdf = await createLayoutTestPDF(ticketPdfs[0], templatePdfBytes);
+  }
+
+  return { ticketPdfs, layoutTestPdf };
+}
+
+async function createLayoutTestPDF(
+  ticketPdfBytes: Uint8Array,
+  templatePdfBytes: Uint8Array
+): Promise<Uint8Array> {
+  const ticketPdf = await PDFDocument.load(ticketPdfBytes);
+  const templatePdf = await PDFDocument.load(templatePdfBytes);
+  const outputPdf = await PDFDocument.create();
+
+  const templateFirstPage = templatePdf.getPage(0);
+  const ticketFirstPage = ticketPdf.getPage(0);
+
+  const templateSize = templateFirstPage.getSize();
+  const ticketSize = ticketFirstPage.getSize();
+
+  const embeddedTemplatePage = await outputPdf.embedPage(templateFirstPage);
+  const embeddedTicketPage = await outputPdf.embedPage(ticketFirstPage);
+
+  const outputPage = outputPdf.addPage([templateSize.width, templateSize.height]);
+
+  // Draw template as background
+  outputPage.drawPage(embeddedTemplatePage, {
+    x: 0,
+    y: 0,
+    width: templateSize.width,
+    height: templateSize.height,
+  });
+
+  // Overlay ticket on top
+  outputPage.drawPage(embeddedTicketPage, {
+    x: 0,
+    y: 0,
+    width: ticketSize.width,
+    height: ticketSize.height,
+  });
+
+  return await outputPdf.save();
 }
 
 async function createSinglePDF(
@@ -55,8 +105,6 @@ async function createSinglePDF(
     const margin = 18;
     const textMargin = 20;
     const qrSize = 60;
-    const qrX = margin;
-    const qrY = height - qrSize - margin - 30 - 40;
 
     // Artist name (left-aligned, bold, dynamic size based on length)
     let yPos = height - (margin + 35);
@@ -126,11 +174,15 @@ async function createSinglePDF(
       }
     }
 
-    // QR Code - only if enabled
+    // QR Code - positioned below seating info
     if (includeQrCode) {
       const qrDataUrl = qrCodeMap.get(ticket.id);
       if (qrDataUrl) {
         try {
+          // Position QR below the last text element
+          yPos -= 16; // Gap before QR
+          const qrY = yPos - qrSize;
+          
           // Convert data URL to image
           // Data URL format: "data:image/png;base64,..."
           const base64Data = qrDataUrl.split(',')[1];
@@ -138,11 +190,13 @@ async function createSinglePDF(
           const qrImage = await pdfDoc.embedPng(imageBytes);
           
           page.drawImage(qrImage, {
-            x: qrX,
+            x: margin,
             y: qrY,
             width: qrSize,
             height: qrSize,
           });
+          
+          yPos = qrY; // Update yPos to bottom of QR
         } catch (error) {
           console.error(`Failed to embed QR code for ticket ${ticket.id}:`, error);
         }
@@ -150,10 +204,10 @@ async function createSinglePDF(
     }
 
     // Static text (below QR code, italic)
-    const staticTextY = qrY - 10; // Position below QR code
+    yPos -= 10; // Gap before static text
     page.drawText(ticket.staticText, {
       x: textMargin,
-      y: staticTextY,
+      y: yPos,
       size: 8,
       font: helveticaObliqueFont,
       color: rgb(0, 0, 0),
