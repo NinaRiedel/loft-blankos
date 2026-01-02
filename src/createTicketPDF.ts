@@ -56,21 +56,22 @@ async function createSinglePDF(
       }
 
       // Hardcoded layout
-      const margin = 15;
+      const margin = 18;
       const textMargin = 20; // More margin for text
       const qrSize = 60;
       const qrX = margin; // Left edge for QR code
       const qrY = A7_HEIGHT - qrSize - margin - 30 - 40; // Moved up by 40
 
-      // Artist name (left-aligned, same font size)
-      let yPos = margin + 30;
-      doc.fontSize(10)
-         .font('Helvetica')
+      // Artist name (left-aligned, bold, larger)
+      let yPos = margin + 35; // More margin above text (moved down)
+      doc.fontSize(12)
+         .font('Helvetica-Bold')
          .text(ticket.artist, textMargin, yPos);
 
       // Date and time on same line with space
       yPos += 16;
-      doc.text(`${ticket.date} ${ticket.startTime}`, textMargin, yPos);
+      doc.font('Helvetica') // Reset to regular font
+         .text(`${ticket.date} ${ticket.startTime}`, textMargin, yPos);
       
       // Venue
       yPos += 16;
@@ -95,14 +96,6 @@ async function createSinglePDF(
         }
       }
 
-      // Static text (below rest of text, above QR code)
-      yPos += 16; // Extra space before static text
-      doc.fontSize(8)
-         .font('Helvetica')
-         .text(ticket.staticText, textMargin, yPos, {
-           width: A7_WIDTH - 2 * textMargin,
-         });
-
       // QR Code (left edge, moved up) - only if enabled
       if (includeQrCode) {
         const qrBuffer = qrCodeMap.get(ticket.id);
@@ -113,6 +106,14 @@ async function createSinglePDF(
           });
         }
       }
+
+      // Static text (below QR code, italic/cursive)
+      const staticTextY = qrY + qrSize + 5; // Position below QR code
+      doc.fontSize(8)
+         .font('Helvetica-Oblique') // Italic/cursive font
+         .text(ticket.staticText, textMargin, staticTextY, {
+           width: A7_WIDTH - 2 * textMargin,
+         });
     }
 
     doc.end();
