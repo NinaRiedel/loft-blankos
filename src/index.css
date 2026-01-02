@@ -209,13 +209,15 @@ h3 {
   background: #545b62;
 }
 
-.download-all-btn {
+.download-all-btn,
+.download-zip-btn {
   background: #4a90e2;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
-.download-all-btn:hover {
+.download-all-btn:hover,
+.download-zip-btn:hover {
   background: #357abd;
 }
 

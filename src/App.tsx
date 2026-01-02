@@ -140,7 +140,7 @@ function App() {
         {error && <div className="error">{error}</div>}
       </div>
 
-      {pdfs && <DownloadSection pdfs={pdfs} tickets={tickets} layoutTestPdf={layoutTestPdf} />}
+      {pdfs && <DownloadSection pdfs={pdfs} tickets={tickets} layoutTestPdf={layoutTestPdf} artistName={config.event.artist} />}
     </div>
   );
 }
