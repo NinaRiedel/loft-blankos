@@ -14,7 +14,7 @@ export function DownloadSection({ pdfs, tickets, layoutTestPdf }: DownloadSectio
   }
 
   const handleDownloadPDF = (pdfBytes: Uint8Array, index: number) => {
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const blob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
     const filename = `tickets-${String(index + 1).padStart(3, '0')}.pdf`;
     downloadBlob(blob, filename);
   };
@@ -27,21 +27,21 @@ export function DownloadSection({ pdfs, tickets, layoutTestPdf }: DownloadSectio
 
   const handleDownloadLayoutTest = () => {
     if (!layoutTestPdf) return;
-    const blob = new Blob([layoutTestPdf], { type: 'application/pdf' });
+    const blob = new Blob([layoutTestPdf as BlobPart], { type: 'application/pdf' });
     downloadBlob(blob, 'layout-test.pdf');
   };
 
   const handleDownloadAll = async () => {
     // Download layout test first if available
     if (layoutTestPdf) {
-      const blob = new Blob([layoutTestPdf], { type: 'application/pdf' });
+      const blob = new Blob([layoutTestPdf as BlobPart], { type: 'application/pdf' });
       downloadBlob(blob, 'layout-test.pdf');
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     // Download all ticket PDFs
     for (let i = 0; i < pdfs.length; i++) {
-      const blob = new Blob([pdfs[i]], { type: 'application/pdf' });
+      const blob = new Blob([pdfs[i] as BlobPart], { type: 'application/pdf' });
       downloadBlob(blob, `tickets-${String(i + 1).padStart(3, '0')}.pdf`);
       await new Promise(resolve => setTimeout(resolve, 300));
     }

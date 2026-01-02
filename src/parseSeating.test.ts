@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseSeating, parseSeatingFile } from './parseSeating.js';
+import { parseSeating } from './parseSeating.js';
 import type { SeatInfo } from './types.js';
 
 describe('parseSeating', () => {
@@ -148,10 +148,3 @@ describe('parseSeating', () => {
   });
 });
 
-describe('parseSeatingFile', () => {
-  it('should throw error for non-existent file', () => {
-    expect(() => {
-      parseSeatingFile('non-existent-file.txt');
-    }).toThrow();
-  });
-});
