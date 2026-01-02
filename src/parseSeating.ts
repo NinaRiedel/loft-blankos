@@ -1,5 +1,4 @@
-import { readFileSync } from 'fs';
-import { parse } from 'csv-parse/sync';
+import Papa from 'papaparse';
 import { SeatInfo } from './types.js';
 
 /**
@@ -69,14 +68,16 @@ export function parseSeating(content: string): SeatInfo[] {
     .replace(/\r\n/g, '\n') // Normalize line endings
     .replace(/\r/g, '\n');
 
-  const records = parse(cleanedContent, {
-    columns: false,
-    skip_empty_lines: true,
-    trim: true,
-    relax_quotes: true,
-    relax_column_count: true, // Allow inconsistent field counts
-    skip_records_with_error: true, // Skip records with parsing errors
+  const parseResult = Papa.parse<string[]>(cleanedContent, {
+    header: false,
+    skipEmptyLines: true,
+    transform: (value: string) => value.trim(),
+    transformHeader: (header: string) => header.trim(),
+    quoteChar: '"',
+    escapeChar: '"',
   });
+
+  const records = parseResult.data;
 
   const seats: SeatInfo[] = [];
 

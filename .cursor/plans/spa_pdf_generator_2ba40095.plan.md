@@ -90,5 +90,3 @@ Use React `useState` for simplicity:
 - `pdfBlobs`: Generated PDF blobs (array)
 - `csvBlob`: Generated CSV blob
 - `isGenerating`: Loading state
-
-### 4. Dependencies to Add
