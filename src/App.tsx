@@ -40,7 +40,7 @@ function App() {
 
   // Load template.pdf on mount
   useEffect(() => {
-    fetch('/template.pdf')
+    fetch(`${import.meta.env.BASE_URL}template.pdf`)
       .then(res => {
         if (res.ok) return res.arrayBuffer();
         throw new Error('Template not found');

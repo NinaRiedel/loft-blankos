@@ -67,7 +67,6 @@ export function DownloadSection({ pdfs, tickets, layoutTestPdf }: DownloadSectio
             <button onClick={handleDownloadLayoutTest} className="download-btn layout-btn">
               Download layout-test.pdf
             </button>
-            <p className="hint">First ticket overlaid on template for alignment check</p>
           </div>
         )}
         <div className="pdf-downloads">
