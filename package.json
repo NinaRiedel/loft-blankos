@@ -27,25 +27,25 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "qrcode": "^1.5.3",
-    "pdfkit": "^0.15.0",
     "csv-writer": "^1.6.0",
     "papaparse": "^5.4.1",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "@types/qrcode": "^1.5.5",
+    "@types/papaparse": "^5.5.2",
     "@types/pdfkit": "^0.13.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "^5.3.3",
     "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
     "vite": "^6.0.5",
     "vitest": "^1.1.0"
   }
 }
-
