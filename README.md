@@ -56,6 +56,24 @@ tsx src/generatePdfs.ts output/Example_Artist_2024-12-25/ids.csv
 
 This reads the CSV and generates PDFs in `output/{ArtistName}_{Date}/tickets/`
 
+#### Test Layout (Overlay on Template)
+Test if the ticket layout works by overlaying a ticket page on top of `template.pdf`:
+```bash
+npm run test-layout
+```
+
+Or using tsx directly:
+```bash
+tsx src/testLayout.ts output/Adele_25.12.2026/tickets/tickets-001.pdf template.pdf layout-test.pdf
+```
+
+Arguments:
+- `ticket-pdf-path` - Path to the generated ticket PDF (required)
+- `template-pdf-path` - Path to template.pdf (default: `template.pdf`)
+- `output-path` - Output file path (default: `layout-test.pdf`)
+
+This creates a PDF with the ticket page overlaid on the template's first page for visual verification.
+
 ## Output
 
 Tickets are generated in `output/{ArtistName}_{Date}/`:

@@ -55,40 +55,44 @@ async function createSinglePDF(
 
       // Hardcoded layout
       const margin = 15;
+      const textMargin = 25; // More margin for text
       const qrSize = 80;
-      const qrX = (A7_WIDTH - qrSize) / 2;
-      const qrY = A7_HEIGHT - qrSize - margin - 30;
+      const qrX = margin; // Left edge for QR code
+      const qrY = A7_HEIGHT - qrSize - margin - 30 - 40; // Moved up by 40
 
-      // Artist name (header)
-      doc.fontSize(18)
-         .font('Helvetica-Bold')
-         .text(ticket.artist, margin, margin, {
-           width: A7_WIDTH - 2 * margin,
-           align: 'center',
-         });
-
-      // Event details
+      // Artist name (left-aligned, same font size)
       let yPos = margin + 30;
       doc.fontSize(12)
          .font('Helvetica')
-         .text(`Date: ${ticket.date}`, margin, yPos);
-      
+         .text(ticket.artist, textMargin, yPos);
+
+      // Date and time on same line with space
       yPos += 18;
-      doc.text(`Time: ${ticket.startTime}`, margin, yPos);
+      doc.text(`${ticket.date} ${ticket.startTime}`, textMargin, yPos);
       
+      // Venue
       yPos += 18;
-      doc.text(`Venue: ${ticket.venue}`, margin, yPos);
+      doc.text(ticket.venue, textMargin, yPos);
       
+      // Category
       yPos += 18;
-      doc.text(`Category: ${ticket.category}`, margin, yPos);
+      doc.text(ticket.category, textMargin, yPos);
 
       // Seat info (if enabled)
       if (ticket.seat) {
         yPos += 18;
-        doc.text(`Seat: ${ticket.seat}`, margin, yPos);
+        doc.text(ticket.seat, textMargin, yPos);
       }
 
-      // QR Code
+      // Static text (below rest of text, above QR code)
+      yPos += 24; // Extra space before static text
+      doc.fontSize(8)
+         .font('Helvetica')
+         .text(ticket.staticText, textMargin, yPos, {
+           width: A7_WIDTH - 2 * textMargin,
+         });
+
+      // QR Code (left edge, moved up)
       const qrBuffer = qrCodeMap.get(ticket.id);
       if (qrBuffer) {
         doc.image(qrBuffer, qrX, qrY, {
@@ -96,14 +100,6 @@ async function createSinglePDF(
           height: qrSize,
         });
       }
-
-      // Static text (footer)
-      doc.fontSize(8)
-         .font('Helvetica')
-         .text(ticket.staticText, margin, A7_HEIGHT - margin - 10, {
-           width: A7_WIDTH - 2 * margin,
-           align: 'center',
-         });
     }
 
     doc.end();
