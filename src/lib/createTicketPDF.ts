@@ -147,7 +147,7 @@ async function createSinglePDF(
       color: rgb(0, 0, 0),
     });
 
-    // Seat info: Area on one line, Row and Seat on same line
+    // Seat info: Area on one line, then either customLine or Row/Seat
     if (ticket.area) {
       yPos -= 16;
       page.drawText(ticket.area.trim(), {
@@ -158,7 +158,19 @@ async function createSinglePDF(
         color: rgb(0, 0, 0),
       });
     }
-    if (ticket.row || ticket.seatNumber) {
+    
+    // Custom line for manual seating (displayed as-is)
+    if (ticket.customLine) {
+      yPos -= 16;
+      page.drawText(ticket.customLine, {
+        x: textMargin,
+        y: yPos,
+        size: 10,
+        font: helveticaFont,
+        color: rgb(0, 0, 0),
+      });
+    } else if (ticket.row || ticket.seatNumber) {
+      // Standard row/seat with prefixes
       yPos -= 16;
       const rowSeatParts: string[] = [];
       if (ticket.row) rowSeatParts.push(`Reihe ${ticket.row}`);

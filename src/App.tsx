@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TicketConfig, TicketData, SeatInfo } from './types.js';
 import { TicketConfigForm } from './components/TicketConfigForm.js';
-import { FileUpload } from './components/FileUpload.js';
+import { SeatingSection } from './components/SeatingSection.js';
 import { PreviewSection } from './components/PreviewSection.js';
 import { DownloadSection } from './components/DownloadSection.js';
 import { generateIds } from './lib/generateIds.js';
@@ -63,7 +63,7 @@ function App() {
     setMissingFields(missing);
 
     if (!seatingData || seatingData.length === 0) {
-      setError('Please upload a seating file first');
+      setError('Bitte Sitzplatzdaten hochladen oder manuell konfigurieren');
       return;
     }
 
@@ -82,6 +82,8 @@ function App() {
       // Prepare ticket data
       const ticketData: TicketData[] = ids.map((id, index) => {
         const seat = seatingData[index];
+        const isManual = seat.status === 'manual';
+        
         return {
           id,
           artist: config.event.artist,
@@ -89,11 +91,12 @@ function App() {
           startTime: config.event.startTime,
           venue: config.event.venue,
           category: seat.category || config.event.category,
-          seat: formatSeatInfo(seat),
+          seat: isManual ? undefined : formatSeatInfo(seat),
           staticText: config.staticText,
           area: seat.area,
-          row: seat.row,
-          seatNumber: seat.seat,
+          row: isManual ? undefined : seat.row,
+          seatNumber: isManual ? undefined : seat.seat,
+          customLine: isManual ? seat.seat : undefined, // line2 stored in seat for manual mode
         };
       });
 
@@ -122,7 +125,7 @@ function App() {
         setMissingFields([]); // Clear validation on change
       }} missingFields={missingFields} />
 
-      <FileUpload onSeatingDataParsed={setSeatingData} />
+      <SeatingSection onSeatingDataChange={setSeatingData} />
 
       <PreviewSection seatingData={seatingData} />
 

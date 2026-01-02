@@ -23,6 +23,7 @@ export interface TicketData {
   area?: string;
   row?: string;
   seatNumber?: string; // Individual seat number
+  customLine?: string; // For manual seating - displayed as-is
 }
 
 export interface QRCodeData {

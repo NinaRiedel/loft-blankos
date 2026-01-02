@@ -84,8 +84,7 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
   };
 
   return (
-    <div className="upload-section">
-      <h2>Optionsliste als Text-Export</h2>
+    <div className="file-upload">
       <label
         htmlFor="file-upload"
         className={`upload-area ${isDragging ? 'dragging' : ''}`}
@@ -103,7 +102,7 @@ export function FileUpload({ onSeatingDataParsed }: FileUploadProps) {
         {fileName ? (
           <span>✓ {fileName}</span>
         ) : (
-          <span>Datei hochladen oder per Drag & Drop (.txt)</span>
+          <span>Datei auswählen oder per Drag & Drop (.txt)</span>
         )}
       </label>
       {error && <div className="error">{error}</div>}
