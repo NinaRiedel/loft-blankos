@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FileUpload } from './FileUpload.js';
 import { ManualSeatingConfig } from './ManualSeatingConfig.js';
 import { SeatInfo } from '../types.js';
@@ -10,10 +10,16 @@ interface SeatingSectionProps {
 }
 
 export function SeatingSection({ onSeatingDataChange }: SeatingSectionProps) {
-  const [mode, setMode] = useState<SeatingMode>('upload');
+  const [mode, setMode] = useState<SeatingMode>('manual');
   const [ticketCount, setTicketCount] = useState(1);
   const [line1, setLine1] = useState('');
   const [line2, setLine2] = useState('');
+
+  useEffect(() => {
+    if (mode === 'manual') {
+      updateManualSeating(ticketCount, line1, line2);
+    }
+  }, []);
 
   const handleModeChange = (newMode: SeatingMode) => {
     setMode(newMode);
@@ -63,17 +69,17 @@ export function SeatingSection({ onSeatingDataChange }: SeatingSectionProps) {
       <h2>Sitzplatzdaten</h2>
       <div className="seating-toggle">
         <button
-          className={`toggle-btn ${mode === 'upload' ? 'active' : ''}`}
-          onClick={() => handleModeChange('upload')}
-        >
-          Datei hochladen
-        </button>
-        <span className="toggle-divider">oder</span>
-        <button
           className={`toggle-btn ${mode === 'manual' ? 'active' : ''}`}
           onClick={() => handleModeChange('manual')}
         >
           Manuell
+        </button>
+        <span className="toggle-divider">oder</span>
+        <button
+          className={`toggle-btn ${mode === 'upload' ? 'active' : ''}`}
+          onClick={() => handleModeChange('upload')}
+        >
+          Datei hochladen
         </button>
       </div>
 

@@ -179,10 +179,19 @@ function App() {
 
   useEffect(() => {
     const missing = getMissingFields(config);
-    if (!seatingData || seatingData.length === 0 || missing.length > 0) {
+    setMissingFields(missing);
+
+    if (!seatingData || seatingData.length === 0) {
+      setError('Bitte Sitzplatzdaten hochladen oder manuell konfigurieren');
       return;
     }
 
+    if (missing.length > 0) {
+      setError('Please fill in all highlighted fields');
+      return;
+    }
+
+    setError(null);
     const timeout = window.setTimeout(() => {
       void generateTickets(false);
     }, 400);
@@ -191,10 +200,6 @@ function App() {
       window.clearTimeout(timeout);
     };
   }, [config, seatingData]);
-
-  const handleGenerate = async () => {
-    await generateTickets(true);
-  };
 
   const handleDownloadPreview = () => {
     if (!previewPdfBytes) return;
@@ -207,50 +212,47 @@ function App() {
     <div className="app">
       <h1>Loft Blankos</h1>
 
-      <TicketConfigForm config={config} onChange={(newConfig) => {
-        setConfig(newConfig);
-        setMissingFields([]); // Clear validation on change
-      }} missingFields={missingFields} />
+      <div className="app-layout">
+        <div className="app-main">
+          <TicketConfigForm config={config} onChange={(newConfig) => {
+            setConfig(newConfig);
+            setMissingFields([]); // Clear validation on change
+          }} missingFields={missingFields} />
 
-      <SeatingSection onSeatingDataChange={setSeatingData} />
+          <SeatingSection onSeatingDataChange={setSeatingData} />
 
-      <PreviewSection seatingData={seatingData} />
+          <PreviewSection seatingData={seatingData} />
 
-      <div className="generate-section">
-        <button
-          onClick={handleGenerate}
-          disabled={isGenerating || !seatingData || seatingData.length === 0}
-          className="generate-btn"
-        >
-          {isGenerating ? 'Generieren...' : 'Tickets generieren'}
-        </button>
-        {error && <div className="error">{error}</div>}
-      </div>
-
-      {pdfs && (
-        <div className="output-row">
-          <DownloadSection pdfs={pdfs} tickets={tickets} artistName={config.event.artist} />
-          <div className="pdf-preview-card">
-            <h2>Preview</h2>
-            <button
-              onClick={handleDownloadPreview}
-              className="download-btn preview-download-btn"
-              disabled={!previewPdfBytes}
-            >
-              Preview PDF herunterladen
-            </button>
-            {pdfPreviewUrl ? (
-              <iframe
-                title="Ticket PDF preview"
-                src={pdfPreviewUrl}
-                className="pdf-preview-frame"
-              />
-            ) : (
-              <p>Keine Vorschau verfügbar.</p>
-            )}
-          </div>
+          {error && <div className="error">{error}</div>}
         </div>
-      )}
+
+        <div className="app-sidebar">
+          {pdfs && (
+            <div className="output-panel">
+              <DownloadSection pdfs={pdfs} tickets={tickets} artistName={config.event.artist} />
+              <div className="pdf-preview-card">
+                <h2>Preview</h2>
+                <button
+                  onClick={handleDownloadPreview}
+                  className="download-btn preview-download-btn"
+                  disabled={!previewPdfBytes}
+                >
+                  Preview PDF herunterladen
+                </button>
+                {pdfPreviewUrl ? (
+                  <iframe
+                    title="Ticket PDF preview"
+                    src={pdfPreviewUrl}
+                    className="pdf-preview-frame"
+                  />
+                ) : (
+                  <p>Keine Vorschau verfügbar.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
