@@ -93,7 +93,7 @@ async function createSinglePDF(
         const qrLeft = 18;
         const lineHeight = 16;
         const topPadding = margin + 40;
-        const staticTextTopOffset = 228;
+        const staticTextTopOffset = 223;
 
         const yFromTop = (topOffset: number) => height - topOffset;
 
