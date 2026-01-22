@@ -7,6 +7,10 @@ import { DownloadSection } from './components/DownloadSection.js';
 import { generateIds } from './lib/generateIds.js';
 import { generateQRCodes } from './lib/generateQRCodes.js';
 import { createPreviewPDFWithTemplate, createTicketPDFs } from './lib/createTicketPDF.js';
+import { downloadBlob } from './lib/downloadUtils.js';
+import { normalizeName } from './lib/normalizeName.js';
+
+const PREVIEW_ZOOM = 120;
 
 function formatSeatInfo(seatInfo: { area?: string; row?: string; seat?: string }): string | undefined {
   const parts: string[] = [];
@@ -43,6 +47,7 @@ function App() {
   const [tickets, setTickets] = useState<TicketData[] | null>(null);
   const [pdfs, setPdfs] = useState<Uint8Array[] | null>(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [previewPdfBytes, setPreviewPdfBytes] = useState<Uint8Array | null>(null);
   const [templatePdf, setTemplatePdf] = useState<Uint8Array | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +70,7 @@ function App() {
   useEffect(() => {
     if (!pdfs || pdfs.length === 0) {
       setPdfPreviewUrl(null);
+      setPreviewPdfBytes(null);
       return;
     }
 
@@ -83,7 +89,8 @@ function App() {
 
       const blob = new Blob([previewBytes as BlobPart], { type: 'application/pdf' });
       objectUrl = URL.createObjectURL(blob);
-      setPdfPreviewUrl(`${objectUrl}#page=1&view=FitH`);
+      setPdfPreviewUrl(`${objectUrl}#page=1&zoom=${PREVIEW_ZOOM}`);
+      setPreviewPdfBytes(previewBytes);
     };
 
     void buildPreview();
@@ -189,6 +196,13 @@ function App() {
     await generateTickets(true);
   };
 
+  const handleDownloadPreview = () => {
+    if (!previewPdfBytes) return;
+    const normalizedArtist = normalizeName(config.event.artist || 'preview');
+    const blob = new Blob([previewPdfBytes as BlobPart], { type: 'application/pdf' });
+    downloadBlob(blob, `preview-${normalizedArtist}.pdf`);
+  };
+
   return (
     <div className="app">
       <h1>Loft Blankos</h1>
@@ -218,6 +232,13 @@ function App() {
           <DownloadSection pdfs={pdfs} tickets={tickets} artistName={config.event.artist} />
           <div className="pdf-preview-card">
             <h2>Preview</h2>
+            <button
+              onClick={handleDownloadPreview}
+              className="download-btn preview-download-btn"
+              disabled={!previewPdfBytes}
+            >
+              Preview PDF herunterladen
+            </button>
             {pdfPreviewUrl ? (
               <iframe
                 title="Ticket PDF preview"

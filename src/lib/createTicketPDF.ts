@@ -90,9 +90,10 @@ async function createSinglePDF(
         const margin = 18;
         const textMargin = 20;
         const qrSize = 50;
+        const qrLeft = 18;
         const lineHeight = 16;
         const topPadding = margin + 40;
-        const staticTextTopOffset = 238;
+        const staticTextTopOffset = 228;
 
         const yFromTop = (topOffset: number) => height - topOffset;
 
@@ -192,7 +193,7 @@ async function createSinglePDF(
                                         const qrImage = await pdfDoc.embedPng(imageBytes);
 
                                         page.drawImage(qrImage, {
-                                                x: margin,
+                                                x: qrLeft,
                                                 y: qrY,
                                                 width: qrSize,
                                                 height: qrSize,

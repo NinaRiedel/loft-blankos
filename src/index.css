@@ -299,6 +299,10 @@ h3 {
   border-radius: 4px;
 }
 
+.preview-download-btn {
+  margin-bottom: 1.5rem;
+}
+
 @media (max-width: 900px) {
   .output-row {
     flex-direction: column;
