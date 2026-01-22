@@ -8,7 +8,8 @@ export async function generateQRCodes(ids: string[]): Promise<QRCodeData[]> {
     try {
       const buffer = await QRCode.toBuffer(id, {
         type: 'png',
-        width: 200,
+        width: 380,
+        // width: 200,
         margin: 1,
       });
       qrCodes.push({ id, buffer });

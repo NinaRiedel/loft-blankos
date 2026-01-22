@@ -38,7 +38,8 @@ h3 {
 .seating-section,
 .preview-section,
 .generate-section,
-.download-section {
+.download-section,
+.pdf-preview-card {
   background: white;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -275,3 +276,31 @@ h3 {
   width: 100%;
 }
 
+.output-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.output-row .download-section {
+  margin-bottom: 0;
+  flex: 1 1 0;
+}
+
+.pdf-preview-card {
+  margin-bottom: 0;
+  flex: 1 1 0;
+}
+
+.pdf-preview-frame {
+  width: 100%;
+  height: 520px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+  .output-row {
+    flex-direction: column;
+  }
+}
