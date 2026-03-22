@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import {Archive, Download, FileDown} from 'lucide-react';
+import {PDFDocument} from 'pdf-lib';
 import {useEffect, useState} from 'react';
 import {
     downloadBlob,
@@ -46,11 +47,12 @@ export function OutputPanel({
     onCustomTemplateChange,
 }: OutputPanelProps) {
     const [tab, setTab] = useState<OutputTab>('print');
+    const digitalPreviewPdfBytes = useFirstPage(digitalExportPdfBytes);
     const printPreviewUrl = usePreviewUrl(printPreviewPdfBytes);
-    const digitalPreviewUrl = usePreviewUrl(digitalExportPdfBytes);
+    const digitalPreviewUrl = usePreviewUrl(digitalPreviewPdfBytes);
     const previewUrl = tab === 'print' ? printPreviewUrl : digitalPreviewUrl;
     const previewPdfBytes =
-        tab === 'print' ? printPreviewPdfBytes : digitalExportPdfBytes;
+        tab === 'print' ? printPreviewPdfBytes : digitalPreviewPdfBytes;
 
     const handleDownloadAll = async () => {
         if (tab === 'print') {
@@ -343,6 +345,40 @@ function downloadPdf(bytes: Uint8Array, fileName: string) {
         new Blob([bytes as BlobPart], {type: 'application/pdf'}),
         fileName,
     );
+}
+
+function useFirstPage(
+    pdfBytes: Uint8Array | null,
+): Uint8Array | null {
+    const [firstPageBytes, setFirstPageBytes] = useState<Uint8Array | null>(
+        null,
+    );
+
+    useEffect(() => {
+        if (!pdfBytes) {
+            setFirstPageBytes(null);
+            return;
+        }
+
+        let isActive = true;
+
+        void PDFDocument.load(pdfBytes).then(async sourcePdf => {
+            const outputPdf = await PDFDocument.create();
+            const [page] = await outputPdf.copyPages(sourcePdf, [0]);
+            outputPdf.addPage(page);
+            const bytes = await outputPdf.save();
+
+            if (isActive) {
+                setFirstPageBytes(bytes);
+            }
+        });
+
+        return () => {
+            isActive = false;
+        };
+    }, [pdfBytes]);
+
+    return firstPageBytes;
 }
 
 function usePreviewUrl(pdfBytes: Uint8Array | null | undefined): string | null {
