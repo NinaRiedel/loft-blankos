@@ -37,9 +37,7 @@ h3 {
 .upload-section,
 .seating-section,
 .preview-section,
-.generate-section,
-.download-section,
-.pdf-preview-card {
+.generate-section {
   background: white;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -75,7 +73,9 @@ h3 {
   border-radius: 4px;
   font-size: 1rem;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .form-group input.missing,
@@ -86,6 +86,22 @@ h3 {
 
 .form-group textarea {
   resize: vertical;
+}
+
+.input-with-suffix {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-with-suffix input {
+  flex: 1;
+}
+
+.input-suffix {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
 }
 
 .form-group input[type="checkbox"] {
@@ -112,6 +128,31 @@ h3 {
 .upload-area.dragging {
   border-color: #4a90e2;
   background: #f0f7ff;
+}
+
+.template-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.template-upload .upload-area {
+  padding: 1rem;
+}
+
+.reset-template-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.25rem 0;
+  text-decoration: underline;
+}
+
+.reset-template-btn:hover {
+  color: #333;
 }
 
 .preview-section p {
@@ -187,6 +228,9 @@ h3 {
 }
 
 .download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   background: #28a745;
@@ -220,6 +264,14 @@ h3 {
 .download-all-btn:hover,
 .download-zip-btn:hover {
   background: #357abd;
+}
+
+.download-csv-btn {
+  background: #9b7bc8;
+}
+
+.download-csv-btn:hover {
+  background: #8566b3;
 }
 
 .hint {
@@ -295,11 +347,55 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.output-panel .download-section,
-.output-panel .pdf-preview-card {
-  margin-bottom: 0;
+.output-section h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.output-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: #333;
+}
+
+.tab-btn.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+}
+
+.download-bulk-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.preview-download-btn {
+  margin-bottom: 0.75rem;
 }
 
 .pdf-preview-frame {
@@ -307,10 +403,6 @@ h3 {
   height: 520px;
   border: 1px solid #eee;
   border-radius: 4px;
-}
-
-.preview-download-btn {
-  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 1100px) {
