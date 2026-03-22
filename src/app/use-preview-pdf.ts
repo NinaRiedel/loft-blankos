@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import {PDFDocument} from 'pdf-lib';
 import {
     createPreviewPdfWithTemplate,
     getPreviewPdfUrl,
@@ -34,7 +35,7 @@ export function usePreviewPdf(
                       ticketPdfFiles[0],
                       templatePdfBytes,
                   )
-                : ticketPdfFiles[0];
+                : await extractFirstPage(ticketPdfFiles[0]);
 
             if (!isActive) {
                 return;
@@ -65,4 +66,12 @@ export function usePreviewPdf(
         previewPdfBytes,
         previewUrl,
     };
+}
+
+async function extractFirstPage(pdfBytes: Uint8Array): Promise<Uint8Array> {
+    const sourcePdf = await PDFDocument.load(pdfBytes);
+    const outputPdf = await PDFDocument.create();
+    const [page] = await outputPdf.copyPages(sourcePdf, [0]);
+    outputPdf.addPage(page);
+    return outputPdf.save();
 }
